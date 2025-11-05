@@ -7,27 +7,31 @@
 
 import SwiftUI
 
-struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
-    struct Value : Equatable, Sendable {
-        var time: Date
-        var location: CGPoint
-        var startLocation: CGPoint
+public struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
+    public struct Value : Equatable, Sendable {
+        public var time: Date
+        public var location: CGPoint
+        public var startLocation: CGPoint
 
-        var translation: CGSize {
+        public var translation: CGSize {
             CGSize(width: location.x - startLocation.x, height: location.y - startLocation.y)
         }
 
-        static func == (a: SimultaneousDragGesture.Value, b: SimultaneousDragGesture.Value) -> Bool {
+        public static func == (a: SimultaneousDragGesture.Value, b: SimultaneousDragGesture.Value) -> Bool {
             a.time == b.time && a.location == b.location && a.startLocation == b.startLocation
         }
     }
 
-    var allowsSwipeToDismiss: Bool = false
+    public var allowsSwipeToDismiss: Bool = false
     var onBegan: (() -> Void)?
     var onChanged: ((Value) -> Void)?
     var onEnded: ((Value) -> Void)?
 
-    func makeUIGestureRecognizer(context: Context) -> UILongPressGestureRecognizer {
+    public init(allowsSwipeToDismiss: Bool = false) {
+        self.allowsSwipeToDismiss = allowsSwipeToDismiss
+    }
+
+    public func makeUIGestureRecognizer(context: Context) -> UILongPressGestureRecognizer {
         let dragGesture = UILongPressGestureRecognizer()
 
         dragGesture.minimumPressDuration = 0.0
@@ -37,7 +41,7 @@ struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
         return dragGesture
     }
 
-    func handleUIGestureRecognizerAction(_ gestureRecognizer: UILongPressGestureRecognizer, context: Context) {
+    public func handleUIGestureRecognizerAction(_ gestureRecognizer: UILongPressGestureRecognizer, context: Context) {
         guard gestureRecognizer.view?.window != nil else {
             context.coordinator.reset()
             return
@@ -96,11 +100,11 @@ struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
         return .init(time: time, location: location, startLocation: start)
     }
 
-    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
+    public func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
         .init(allowsSwipeToDismiss: allowsSwipeToDismiss)
     }
 
-    class Coordinator: NSObject, UIGestureRecognizerDelegate {
+    public class Coordinator: NSObject, UIGestureRecognizerDelegate {
         var start: CGPoint?
         var allowsSwipeToDismiss: Bool
         var startTime: Date?
@@ -117,7 +121,7 @@ struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
             hasCheckedSwipe = false
         }
 
-        func gestureRecognizer(
+        public func gestureRecognizer(
             _ gestureRecognizer: UIGestureRecognizer,
             shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
         ) -> Bool {
@@ -128,13 +132,13 @@ struct SimultaneousDragGesture: UIGestureRecognizerRepresentable {
 
 extension SimultaneousDragGesture {
 
-    @MainActor @preconcurrency func onBegan(perform action: @escaping () -> Void) -> Self {
+    @MainActor @preconcurrency public func onBegan(perform action: @escaping () -> Void) -> Self {
         var mutableSelf = self
         mutableSelf.onBegan = action
         return mutableSelf
     }
 
-    @MainActor @preconcurrency func onChanged(
+    @MainActor @preconcurrency public func onChanged(
         perform action: @escaping (SimultaneousDragGesture.Value) -> Void
     ) -> Self {
         var mutableSelf = self
@@ -142,7 +146,7 @@ extension SimultaneousDragGesture {
         return mutableSelf
     }
 
-    @MainActor @preconcurrency func onEnded(
+    @MainActor @preconcurrency public func onEnded(
         perform action: @escaping (SimultaneousDragGesture.Value) -> Void
     ) -> Self {
         var mutableSelf = self

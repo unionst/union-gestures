@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension View {
+public extension View {
     @ViewBuilder
     func applyDragGesture(drag: SimultaneousDragGesture, simultaneousDrag: some Gesture) -> some View {
         if #available(iOS 26.0, *) {
